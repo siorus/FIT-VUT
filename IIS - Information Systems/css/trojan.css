@@ -1,0 +1,74 @@
+.objednavky{
+	background-color: #37ad45; 
+	width: 100px;
+	height: 100px;
+	margin: 5px 5px 5px 5px; 
+	display: inline-block;
+	text-align: center;
+	position: relative;
+}
+
+.objednavky div {
+	    text-align: center;
+	    position: absolute;
+		top: 0;
+	    bottom: 0;
+	    left: 0;
+	    right: 0;
+	    width: 50%;
+	    height: 40%;
+	    margin: auto;
+}
+
+.objednavky p{
+	background-color: #37ad45; 
+	color: white;
+	font-size: x-large;
+
+}
+
+.flash_msg_fail{
+	display: block;
+	background: #ffcece;
+	color: #3f3f3f;
+	text-align: left;
+	font-size: 12pt;
+	padding: 10pt 5pt 5pt 15pt;
+	margin: 10pt;
+	min-width: 200pt;
+	border-left: red 5pt solid;
+}
+
+.flash_msg_fail p {
+	margin: 0 0 5pt 0;
+	color: #474d56;
+}
+
+.flash_msg_ok{
+	display: block;
+	background: #ceefce;
+	color: #3f3f3f;
+	text-align: left;
+	font-size: 12pt;
+	padding: 10pt 5pt 5pt 15pt;
+	margin: 10pt;
+	min-width: 200pt;
+	border-left: green 5pt solid;
+}
+
+.flash_msg_ok p {
+	margin: 0 0 5pt 0;
+	color: #474d56;
+}
+
+#permission_denied {
+	display: block;
+	background: #ffcece;
+	color: #3f3f3f;
+	text-align: left;
+	font-size: 12pt;
+	padding: 10pt 5pt 5pt 15pt;
+	margin: 10pt;
+	min-width: 200pt;
+	border-left: red 5pt solid;
+}

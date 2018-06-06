@@ -1,0 +1,198 @@
+#!/bin/sh
+#NAME:	dirstat - recursively investigates directories and makes report
+#
+#SYNOPSIS:	dirstat [-i FILE_ERE] [DIR]
+#
+#DESCRIPTION:	Recursively investigates direstories, makes statistics (e.g. number of directories, maximum depth, average no. of files,
+#				largest file size, average file size, file size median and all these stuff for each file extension).				
+#				If no argument is written down, default DIR is CWD. Script exits when you do not have enough permissions on
+#				a single file or directory. I can be easyly turned off in the source code.
+#
+#				-i 		--ignore
+#				ignores file names and directories, which match given extended regular expression
+#
+#
+#KNOWN BUGS:	
+#				- ignoring when spaces are in filenames (problem is probably solved, tested only on few examples)
+#				- minor problems with ignoring (fix is to save all matched file/folders to variable delimited with
+#				  prohibited name symbol and then iterate over that list with find and count size)
+#				- printf is not supported in posix find command thats why FREEBSD is not recommended OS for this script)
+#
+
+#TO DO:
+#				-  load arguments with getopts
+#
+#AUTHOR:	Written by Juraj Korcek as a school project for "OPERATING SYSTEMS" at FIT VUT. Feel free to modify the code and spread it with love :)
+
+FILE_ERE="^$"
+
+if [ "$#" -gt 3 ]; then
+	printf "ERR0: TOO MANY ARGUMENTS\n" 1>&2
+	exit 1
+fi
+
+
+if [ -d "$1" ] && [ "$#" -gt 1 ]; then
+	printf "ERR0: TOO MANY ARGUMENTS\n" 1>&2
+	exit 1
+fi
+
+if [ "$1" = "-i" ] && [ "$#" -ge 2 ]; then
+	FILE_ERE="$2"
+	FILE_ERE="$(echo "$FILE_ERE"| sed -e 's,\^,\/,g' -e 's,\$$,[(\$|\\/)]*,')"
+	if [ -n "$3" ] && [ -d "$3" ]; then
+		DIR="$3"
+	elif [ -n "$3" ] && [ ! -d "$3" ]; then
+		printf "ERR1: PATH DOES NOT EXISTS\n" 1>&2
+		 exit 2
+	fi
+fi
+
+if [ "$#" -eq 1 ]; then
+	if [ -d "$1" ]; then
+		DIR="$1"
+	else printf "ERR1: PATH DOES NOT EXISTS\n" 1>&2
+		 exit 2
+	fi
+fi
+
+if [ "$DIR" = "" ]; then
+	DIR="`pwd`"
+fi
+
+find "$DIR" >/dev/null 2>&1
+
+if [ `echo $?` -eq "1" ]; then
+	printf "ERR4: NOT ENOUGH PERMISSIONS\n" 1>&2
+	exit 4
+fi
+
+
+DIR1="`cd "$DIR";pwd`"
+
+#if [ ! -x "$DIR" ] || [ ! -r "$DIR" ]; then
+#	echo "ERR4: NOT ENOUGH PERMISSIONS"/
+#	exit 4
+#fi
+
+#IS_REG_DIR="$(echo "$DIR1"| egrep "$FILE_ERE"| wc -l)"
+
+#if [ "$IS_REG_DIR" -eq 1 ]; then
+#	echo "ERR3: REGEX MATCHES ROOT FOLDER"
+#	exit 3
+#fi
+
+DIR2="$(echo "$DIR1"| sed 's \/ \\\/ g'| sed "s/\ /\\\ /g")"
+
+#NUMBEROFDIRECTORIES|sed filters absolute path, it is just in case when regex would match path 
+ND="$(find "$DIR1" -type d| sed s/"$DIR2"/\./g| egrep -v "$FILE_ERE"| wc -l)"
+
+#DIRECTORYDEPTH|second sed keeps only slashes - it helps to count directory depth
+DD="$(find "$DIR1" -type d| sed s/"$DIR2"/\./g| egrep -v "$FILE_ERE"| sed 's/[^\/]//g'| sed 's/\\//g' | awk '{print length}'| sort| tail -1)"
+DD="$((DD+1))"
+
+#NUMBEROFFILES
+NF="$(find "$DIR1" -type f| sed s/"$DIR2"/\./g| egrep -v "$FILE_ERE"| wc -l)"
+
+#LARGESTFILE| printf prints path with size delimited with backslash
+LF="$(find "$DIR1" -type f -printf "%p\\\%s\n"| sed s/"$DIR2"/\./g| egrep -v "$FILE_ERE" | awk -F'\' '{print $2}'| sort -n| tail -1)"
+LFN="$(find "$DIR1" -type f -printf "%p\\\%s\n"| sed s/"$DIR2"//g| egrep -v "$FILE_ERE" | grep "$LF" |awk -F'\' '{print $1}'| sed 's/\///g')"
+
+#AVERAGENUMOFFILES
+if [ "$ND" -eq 0 ]; then
+	AF=0
+else
+	AF=$((NF/ND))
+fi
+
+if [ "$LF" = "" ] || [ "$LF" = "0" ]; then
+	LF='N/A'
+fi
+
+if [ "$NF" -eq 0 ]; then
+	AS="N/A"
+	else
+	SIZEALL="$(find "$DIR1" -type f -printf "%p\\\%s\n"| sed s/"$DIR2"/\./g| egrep -v "$FILE_ERE" | awk -F'\' '{ total += $2 }; END { print total };')"
+	#AVERAGEFILESIZE
+	AS=$((SIZEALL/NF))
+fi
+
+#MEDIAN
+PARITY=$((NF%2))
+
+if [ "$NF" -eq 0 ]; then
+	MS="N/A"
+fi
+
+if [ "$PARITY" -ne 0 ] && [ "$NF" -ne 0 ]; then
+	CENTER=$((NF/2))
+	CENTER=$((CENTER+1))
+	MS="$(find "$DIR1" -type f -printf "%p\\\%s\n"| sed s/"$DIR2"/\./g| egrep -v "$FILE_ERE" | awk -F'\' '{ print $2 }'| sort -n| sed -n "$CENTER"p)"
+elif [ "$PARITY" -eq 0 ] && [ "$NF" -ne 0 ]; then
+	CENTER=$((NF/2))
+	MS1="$(find "$DIR1" -type f -printf "%p\\\%s\n"| sed s/"$DIR2"/\./g| egrep -v "$FILE_ERE" | awk -F'\' '{ print $2 }'| sort -n| sed -n "$CENTER"p)"
+	CENTER=$(($CENTER+1))
+	MS2="$(find "$DIR1" -type f -printf "%p\\\%s\n"| sed s/"$DIR2"/\./g| egrep -v "$FILE_ERE" | awk -F'\' '{ print $2 }'| sort -n| sed -n "$CENTER"p)"
+	MS=$((MS1+MS2))
+	MS=$((MS/2))
+fi
+
+#EXTENSIONSLIST| grep matches files with extensions|sed filters hidden files without extensions|sed show only extensions| sed filters extensions with alfanumerics chars
+EL="$(find "$DIR1" -type f| sed s/"$DIR2"/\./g| egrep -v "$FILE_ERE"| grep ".*\..*"| sed '/^.*\/\.[^\.]*$/d'| sed 's/.*\.//'| sort -u| sed '/[^[:alnum:]]/d'|paste -sd, -)"
+
+if [ "$EL" != "" ]; then
+	EL="$(echo $EL| sed 's/^/ /g')"
+fi
+
+ELSUM="$(find "$DIR1" -type f | sed s/"$DIR2"/\./g| egrep -v "$FILE_ERE"| grep ".*\..*"| sed '/^.*\/\.[^\.]*$/d'| sed 's/.*\.//'| sort -u| sed '/[^[:alnum:]]/d'|wc -l)"
+
+printf "Root directory: %s\n" "$DIR"
+printf "Directories: %d\n" $ND
+printf "Max depth: %d\n" $DD
+printf "Average no. of files: %d\n" $AF
+printf "All files: %d\n" $NF
+printf "  Largest file: %s\n" $LFN
+printf "  Largest file size: %s Bytes\n" $LF
+printf "  Average file size: %s Bytes\n" $AS
+printf "  File size median: %s Bytes\n" $MS
+printf "File extensions:%s\n" "$EL"
+
+if [ "$ELSUM" -gt 0 ]; then
+ITER="1"
+
+while [ "$ITER" -le "$ELSUM" ]; do
+	EXT="$(find "$DIR1" -type f| sed s/"$DIR2"/\./g| egrep -v "$FILE_ERE"| grep ".*\..*"| sed '/^.*\/\.[^\.]*$/d'| sed 's/.*\.//'| sort -uV| sed '/[^[:alnum:]]/d'| sed -n "$ITER"p)"
+		
+	NEXT="$(find "$DIR1" -regex "^.*[^\/]\."$EXT"$" -type f| sed s/"$DIR2"/\./g| egrep -v "$FILE_ERE"| wc -l)"
+
+	LEXT="$(find "$DIR1" -regex "^.*[^\/]\."$EXT"$" -type f -printf "%p\\\%s\n"| sed s/"$DIR2"/\./g| egrep -v "$FILE_ERE" | awk -F'\' '{ print $2 }'| sort -n| tail -1)"
+	
+	LEXTN="$(find "$DIR1" -regex "^.*[^\/]\."$EXT"$" -type f -printf "%p\\\%s\n"| sed s/"$DIR2"//g| egrep -v "$FILE_ERE" | grep "$LEXT" |awk -F'\' '{print $1}'| sed 's/\///g')"
+	
+	SIZEEXT="$(find "$DIR1" -regex "^.*[^\/]\."$EXT"$" -type f -printf "%p\\\%s\n"| sed s/"$DIR2"/\./g| egrep -v "$FILE_ERE" | awk -F'\' '{ total += $2 }; END { print total };')"
+	
+	AEXT=$((SIZEEXT/NEXT))
+
+	PARITY=$((NEXT%2))
+
+	if [ "$PARITY" -ne 0 ]; then
+		CENTERE=$((NEXT/2))
+		CENTERE=$((CENTERE+1))
+		MEXT="$(find "$DIR1" -regex "^.*[^\/]\."$EXT"$" -type f -printf "%p\\\%s\n"| sed s/"$DIR2"/\./g| egrep -v "$FILE_ERE" | awk -F'\' '{ print $2 }'| sort -n| sed -n "$CENTERE"p)"
+	else 
+		CENTERE=$((NEXT/2))
+		MEXT1="$(find "$DIR1" -regex "^.*[^\/]\."$EXT"$" -type f -printf "%p\\\%s\n"| sed s/"$DIR2"/\./g| egrep -v "$FILE_ERE" | awk -F'\' '{ print $2 }'| sort -n| sed -n "$CENTERE"p)"
+		CENTERE=$((CENTERE+1))
+		MEXT2="$(find "$DIR1" -regex "^.*[^\/]\."$EXT"$" -type f -printf "%p\\\%s\n"| sed s/"$DIR2"/\./g| egrep -v "$FILE_ERE" | awk -F'\' '{ print $2 }'| sort -n| sed -n "$CENTERE"p)"
+		MEXT=$((MEXT1+MEXT2))
+		MEXT=$((MEXT/2))
+	fi
+	
+	printf "Files .%s: %s\n" $EXT $NEXT
+	printf "  Largest file .%s: %s\n" $EXT $LEXTN 
+	printf "  Largest file size .%s: %s Bytes\n" $EXT $LEXT 
+	printf "  Average file size .%s: %s Bytes\n" $EXT $AEXT
+	printf "  File size median .%s: %s Bytes\n" $EXT $MEXT
+	ITER="$(($ITER+1))"
+done
+fi

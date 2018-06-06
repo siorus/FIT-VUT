@@ -1,0 +1,124 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title>Projekt IIS</title>
+    <style type="text/css">
+      table { border-collapse: collapse; }
+      td, th { border: 1px solid black; padding: 0.3em 0.5em; text-align: left; }
+      dt { font-weight: bold; margin-top: 0.5em; }
+    </style>
+  </head>
+  <body>
+
+    <!-- Zkontrolujte prosím nastavení kódování v hlavičce dokumentu 
+podle použitého editoru -->
+
+    <h1>Restaurace</h1> <!-- Nahradte názvem svého zadání -->
+
+    <dl>
+      <dt>Autoři</dt>
+      <dd>Juraj Korček
+        <a href="mailto:xkorce01@stud.fit.vutbr.cz">xkorce01@stud.fit.vutbr.cz</a> - databázový subsystém, uživatelské rozhraní
+      </dd>
+      <dd>Jan Kubica
+        <a href="mailto:xkubic39@stud.fit.vutbr.cz">xkubic39@stud.fit.vutbr.cz</a> - uživatelské rozhraní, testování
+
+      </dd>
+      <dt>URL aplikace</dt>
+      <dd><a href="http://www.trojanhorsepub.xyz">http://www.trojanhorsepub.xyz</a></dd>
+    </dl>
+
+    <h2>Uživatelé systému pro testování</h2>
+    <table>
+      <tr><th>Login</th><th>Heslo</th><th>Role</th></tr>
+      <tr><td>xkubic01</td><td>user1</td><td>Majitel</td></tr>
+      <tr><td>xkorce01</td><td>user2</td><td>Provozní</td></tr>
+      <tr><td>xnovak01</td><td>user3</td><td>Kuchař</td></tr>
+      <tr><td>xsvobo01</td><td>user4</td><td>Číšník</td></tr>
+    </table>
+
+    <h2>Implementace</h2>
+    <p>Informační systém byl implementován klasickým způsobem za použítí <i>MySQL</i> databáze a skiptovacího jazyka <i>PHP</i>. K zjednodušení implementace byla využita knihovna <i>Bootstrap v3</i> přičemž nebyl použit žádný jiný PHP framework. Oproti původnímu databázovému modelu, který vycházel z předmětu IDS, bylo potřeba zohlednit, že s nově vytvořeným systémem budou pracovat i běžní uživatelé. Pro zachování konzistence a větší bezpečnost jsou tak například při odstranění již neplatné hodnoty v databázi <i>(například již neservírované položky menu)</i> konkrétní řádky databáze zneviditelněny atributem "<i>hide_</i>".</p>
+    <p>V rámci systému se objevují čtyři typy uživatelů - <b>Majitel</b>, <b>Provozní</b>, <b>Kuchař</b> a <b>Číšník</b>.</p>
+    <ul>
+      <li><i>Majitel</i> má ze všech uživatelů nejvyšší pravomoce a jako jedinému je mu umožněn přehled tržeb za zvolené období.</li>
+      <li><i>Provozní</i> má oproti <i>kuchaři</i> a <i>číšníkovi</i> možnost editovat údaje o zaměstnancích, vytvářet/odebírat jednotlvé stoly nebo přidávat ingredience a položky menu.</li>
+      <li><i>Kuchaři</i> a <i>číšníkovi</i> je umožněno vytvářet a nahlížet na objednávky a rezervace.</li>
+      <li>Rezervace je možno vytvářet na více stolů současně, příp. tedy i celé restaurace.</li>
+      <li>V rámci jednoho stolu lze běžně objednané položky rozdělit mezi zákazníky a vytvořit tak několik účtenek.</li>
+      <li>U rolí <i>kuchaře</i> a <i>číšníka</i> je přirozeně předpokládána průběžná práce s informačním systémem, zatímco účty <i>majitele</i> a <i>provozního</i> jsou pro větší bezpečnost při více jak 15-ti minutové nečinnosti <b>automaticky odhlašovány</b>. Po vypršení 15 minut a následném pokusu o otevření jiné podstránky nebo uložení formuláře je uživatel odhlášen, přesměrován na přihlašovací stránku a případné vyplněné formuláře nejsou uložené.</li>
+      <li>Při přehledu tržeb a rezervací a nezadání datumu a hodiny se implicitne počítá aktuální den. Při přidávání rezervace se zase počíta v položce <i>Datum od</i> s aktuální hodinou a v <i>Datum do</i> s aktuální hodinou inkrementovanou o 2.</li>
+    </ul>
+    <h3>Zdrojové soubory</h3>
+
+    <ul>
+      <li>
+        <i>Objednávky</i> - <b>objednavky_*.php</b> - soubory umožňující pohled na vytvořené stoly v restauraci s aktuálními objednávkami.
+      </li>
+      <li>
+        <i>Rezervace</i> - <b>rezervace_*.php</b> - soubory zobrazující vytvořené rezervace stolů v zadaném období, u jednotlivých rezervací je možno pak zobrazit detaily, smazat rezervaci, přidat rezervaci.
+      </li>
+      <li>
+        <i>Menu</i> - <b>menu_*.php</b> - soubory poskytující přehled o položkách menu a o jednotlivých ingrediencí. Jsou rozděleny na:
+        <ul>  
+          <li>
+            <i>Ingredience</i> - <b>_ingred_</b> - část zobrazující všechny ingredience, jejich přidáni, odebrání, modifikace.
+          </li>
+          <li>
+            <i>Položka Menu</i> - <b>_polozka_</b> - část pro přehled všech položek menu, jejich přidáni, odebrání, modifikace.
+          </li>
+        </ul>
+      </li>
+      <li>
+        <i>Zaměstnanec</i> - <b>user_*.php</b> - přehled o všech zaměstnancích registrovaných v systému, jejich přidáni, odebrání, modifikace.
+      </li>
+      <li>
+        <i>Stoly</i> - <b>table_*.php</b> - soubory pro správu stolů v restauraci. Stoly je možno přidávat, odebírat nebo měnit jejich kapacitu.
+      </li>
+      <li>
+        <i>Tržby</i> - <b>trzby.php</b> - modul zobrazující přehled třžeb a utrženou sumu za zvolené období.
+      </li>
+    </ul>
+    <ul>
+      <li>
+        Header - <b>header.php</b> - navigační panel IS, umožňující přepínání mezi stránkami.
+      </li>
+      <li>
+        Footer - <b>footer.php</b> - soubor se zápatím stránky.
+      </li>
+      <li>
+        Index - <b>index.php</b> - soubor definující přihlašovací stránku do systému.
+      </li>
+      <li>
+        Login Script - <b>login_script.php</b> - soubor zajišťující přihlašování do systému.
+      </li>
+      <li>
+        Permissions - <b>permissions.php</b> - soubor popisující stránku při neoprávněném přístupu do systému.
+      </li>
+      <li>
+        Timeout - <b>timeout.php</b> - soubor pro automatické odhlašování majitele a provozního.
+      </li>
+      <li>
+        Functions - <b>functions.php</b> - soubor definující funkce pro připojení k databázi a informační <i>flash messages</i>.
+      </li>
+    </ul>
+
+    <h2>Instalace</h2>
+    <ul>
+      <li>Požadavky: <i>PHP 7.0</i>, <i>MySQL 5.7</i> databázový server (vč. <i>phpMyAdmin</i>).</li>
+      <li>Pro správnou funkčnost je třeba rozbalit zip archív a nahrát soubory na uložiště na serveru.</li>      
+      <li>Vzorová databáze systému s definicemi jednotlivých tabulek k nahrání skrze <i>phpMyAdmin</i> je obsažena ze souboru <b>/sql/IIS.sql</b>. Nutností je import těchto dat skrze rozhraní phpMyAdmin.
+      <li>Přihlašovací udaje k databázi je třeba upravit v souboru <b>functions.php</b>.</li>
+    </ul>
+    
+    <h2>Známé problémy</h2>
+    <p>Z hlediska funkčnosti nebyly zjištěny žádné problémy. Pro přístup do systému je vždy třeba se přihlásit platným uživatelským účtem vytvořeným v databázi IS. Při objednání jídla s sebou a pozdějšímu vyzvednutí zákazníkem jsou jídla objednávána na bar, kde je kapacita stolu vyšší. Informačný systém predpokladá nejnovější verze prohlížečů IE, Firefox a Chrome.<p>
+
+    <h2>Use-Case Diagram</h2>
+    <p>Pro lepší přehled o možnostech využití systému jednotlivými uživateli je k dizpozici <a href="#UC">Use-Case diagram</a>.</p>
+    <img id="UC" src="UC.png" width="800">
+  </body>
+</html>

@@ -1,0 +1,26 @@
+Navrhněte a v jazyku C pro MSP430 implementujte jednoduchou aplikaci pro FITkit, která bude kódovat zadané znaky do Morseovy abecedy. Požadavky jsou následující:
+
+1. Zadávání znaků bude probíhat interaktivně prostřednictvím klávesnice kitu (implementujte obdobně jako např. při psaní SMS na starších mobilních telefonech).
+
+2. Výstup bude realizován pomocí piezo bzučáku na FITkitu - např. znak 'A' (.-) bude zakódován jedním krátkým a jedním dlouhým pípnutím.
+
+3. Momentálně reprodukovaný znak latinské i Morseovy abecedy zobrazujte formou "A .-" na LCD displeji kitu.
+
+4. Aplikace musí umožnit zadávání dalšího znaku i v případě, že je stále bzučákem reprodukován předchozí znak.
+
+5. Mezi reprodukcí jednotlivých zakódovaných znaků nechte rozumně dlouhou mezeru, aby bylo možné znaky odlišit.
+
+6. Klávesami A, B, C implementujte různou rychlost reprodukce znaků Morseovy abecedy.
+
+* * *
+
+A. Jednou z podmínek udělení plného hodnocení je osobní demonstrace funkčnosti řešení vyučujícímu. Dokončíte-li projekt v předstihu, můžete si domluvit individuální termín obhajoby s vedoucím. Hromadné obhajoby proběhnou po termínu odevzdání, informace k tomu budou včas sděleny mailem.
+
+B. Dílčí složkou pro hodnocení je též stručná dokumentace poskytující základní informace o projektu a způsobu řešení. Ta by měla obsahovat zejména: 
+Odstavec s textovým popisem projektu - o co se jedná, účel, funkce.
+Popis ovládání (význam použitých kláves FITkitu, apod.).
+Stručný popis způsobu řešení - stačí jen info o klíčových částech implementovaných řešitelem, případně zmínka o převzatých kódech, jejich modifikaci či externích knihovnách (je-li třeba).
+Závěrečné shrnutí - zhodnocení řešení, známé problémy a nedostatky, sdělení o případných nedokončených/neimplementovaných částech s ohledem na zadání.
+Není podstatný ani tak rozsah dokumentace, ale to, zda obsahuje podstatné informace o projektu. Dokumentaci odevzdávejte ve formátu PDF.
+
+C. Odevzdávejte jediný ZIP archiv pojmenovaný Vaším loginem, který bude obsahovat adresář opět nazvaný podle loginu a v něm dokumentaci a příslušné zdrojové soubory s projektem pro FITkit tak, aby bylo možné jeho zprovoznění po nakopírování do SVN FITkitu standardní posloupností příkazů fcmake; make; make load (nebo přes QDevKit).

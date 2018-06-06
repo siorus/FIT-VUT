@@ -1,0 +1,62 @@
+Klient POP3 s podporou TLS
+--------------------------
+
+Autor: Juraj Korček, xkorce01@stud.fit.vutbr.cz
+Dátum: 15.10.2017
+
+Popis programu
+--------------
+
+Program popcl slúži na čítanie e-mailov zo zadaného POP3 servera, ktoré ukladá do lokálneho priečinka. Podporuje TLS a STLS pre zvýšenie bezpečnosti. Vyžaduje username a password pre autentizaciu, ktoré sú vyčítane zo súboru definovanom na príkazovej riadke.
+
+Použitie
+--------
+popcl <server> [-p <port>] [-T|S [-c <certfile>] [-C <certaddr>]] [-d] [-n] -a <auth file> -o <out dir> [-h]
+
+<server> – ip adresa alebo doménove meno zdroja.
+-a <auth file> – vynucuje autentizáciu a špecifikuje cestu k súboru s autentizačnými
+údajmi.
+-o <out dir> – špecifikuje výstupný adresár do ktorého sa majú ukladať správy. Pokiaľ adresár neexistuje, program sa ukončı́ s chybovým hlásenı́m. Odporúča sa pre každý účet špecifikovať separátnu zložku.
+Voliteľné parametre programu:
+-d – zašle serveru prı́kaz pre zmazanie správ.
+-n – sťahovanie iba nových správ.
+-p <port> - špecifikuje čı́slo portu, v prı́pade TLS je použitý port 995 a STLS 110.
+-T – zapı́na šifrovanie komunikácie (pop3s).
+-S – naviaže nešifrované spojenie a prı́kazom STLS prejde na šifrovanú variantu protokolu.
+-c <certfile> – definuje súbor s certifikátmi potrebný pre overenie platnosti certifikátu
+predloženého serverom. Použitie je možňé iba s parametrom -T alebo -S.
+-C <certaddr> – definuje adresár, v ktorom sa majú vyhľadať certifikáty potrebné pre overenie platnosti certifikátu predloženého serverom. Použitie je možné iba s parametrom -T alebo -S.
+-h – zobrazı́ nápovedu programu.
+
+Príklad spustenia
+-----------------
+
+./popcl pop3.seznam.cz -p 995 -T -n -a /home/user/usrpsswd -o /home/user/
+
+Rozšírenia
+----------
+
+žiadne
+
+Obmedzenia
+----------
+
+1. pri zadaní neexistujúceho výstupného adresára program končí chybou.
+2. pri zadaní prepínača -n a pokuse stiahnuť nové e-maily zo servera nepodporujúceho príkaz UIDL sa program ukončí s chybovým hlásením z dôvodu 
+   notifikácie užívateľa o prípadnej duplicite uložených správ.
+3. pri sťahovaní e-mailov zo servera nepodporujúceho príkaz UIDL, sa odporúča používať prepínač -d, ktorý zmaže správy na serveri, v opačnom prípade
+   môžu byť správy uložené duplicitne, pod iným menom, nakoľko nie je možné určiť, či majú byť ponechané alebo prepísané.
+4. odporúča sa pre každý účet špecifikovať separátnu zložku.
+
+Zoznam odovzdaných súborov
+--------------------------
+
+popcl.cpp
+header.h
+ssl_functions.cpp
+aux_functions.cpp
+communication_functions.cpp
+pop3_functions.cpp
+Makefile
+manual.pdf
+README

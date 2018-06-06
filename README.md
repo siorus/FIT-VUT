@@ -1,2 +1,3 @@
 # FIT-VUT
-School projects
+## School projects
+This repository contains few interesting projects/programs which was created during study at FIT BUT.

@@ -1,0 +1,71 @@
+Popis varianty:
+Napište program popcl, který bude umožňovat čtení elektronické pošty skrze protokol POP3 (RFC 1939 s rozšířeními pop3s a POP3 STARTTLS - RFC 2595). Program může podporovat pouze autentizaci příkazy USER/PASS, příkaz APOP nemusíte podporovat.
+
+Program po spuštění stáhne zprávy uložené na serveru a uloží je do zadaného adresáře (každou zprávu zvlášť). Na standardní výstup vypíše počet stažených zpráv. Pomocí dodatečných parametrů je možné funkcionalitu měnit.
+
+Při vytváření programu je povoleno použít hlavičkové soubory pro práci se sokety a další obvyklé funkce používané v síťovém prostředí (jako je netinet/*, sys/*, arpa/* apod.), knihovnu pro práci s vlákny (pthread), signály, časem, stejně jako standardní knihovnu jazyka C (varianty ISO/ANSI i POSIX), C++ a STL. Pro práci se SSL/TLS je povolena knihovna openssl. Jiné knihovny nejsou povoleny.
+
+Spuštění aplikace
+
+Použití: popcl <server> [-p <port>] [-T|-S [-c <certfile>] [-C <certaddr>]] [-d] [-n] -a <auth_file> -o <out_dir>
+
+Pořadí parametrů je libovolné. Popis parametrů:
+
+Povinně je uveden název <server> (IP adresa, nebo doménové jméno) požadovaného zdroje.
+Volitelný parametr -p specifikuje číslo portu <port> na serveru. Zvolte vhodnou výchozí hodnotu v závislosti na specifikaci parametru -T a číslech portů registrovaných organizací IANA.
+Parametr -T zapíná šifrování celé komunikace (pop3s), pokud není parametr uveden použije se nešifrovaná varianta protokolu.
+Parametr -S naváže nešifrované spojení se serverem a pomocí příkazu STLS (RFC 2595) přejde na šifrovanou variantu protokolu.
+Volitelný parametr -c definuje soubor <certfile> s certifikáty, který se použije pro ověření platnosti certifikátu SSL/TLS předloženého serverem (použití jen s parametrem -T, nebo -S).
+Volitelný parametr -C určuje adresář <certaddr>, ve kterém se mají vyhledávat certifikáty, které se použijí pro ověření platnosti certifikátu SSL/TLS předloženého serverem. (Použití jen s parametrem -T, nebo -S.)
+Pokud není uveden parametr -c ani -C, pak použijte úložiště certifikátů získané funkcí SSL_CTX_set_default_verify_paths().
+Při použití parametru parametru -d se zašle serveru příkaz pro smazání zpráv.
+Při použití parametru parametru -n se bude pracovat (číst) pouze s novými zprávami. Zamyslete se nad možným zjištěním novosti zpráv. Zvolený přístup a případne nedostatky popište v dokumentaci.
+Povinný parametr -a <auth_file> vynucuje autentizaci (příkaz USER), obsah konfiguračního souboru <auth_file> je zobrazený níže.
+Povinný parametr -o <out_dir> specifikuje výstupní adresář <out_dir>, do kterého má program stažené zprávy uložit.
+Soubor s autentizačními údaji
+
+Konfigurační soubor s autentizačními údaji bude obsahovat uživatelské jméno, heslo v jednoduchém formátu (dodržujte konvence pro textové soubory v prostředí UNIX/Linux):
+
+username = jmeno
+password = heslo
+
+Výstup aplikace
+
+Po spuštění aplikace vypište pouze informaci o počtu stažených zpráv, text sdělení nesmí být delší než 1 řádek. Text sdělení vhodně upravte v závislosti na použití parametru -n.
+
+Jednotlivé zprávy budou ukládány ve formátu Internet Message Format (RFC 5322) do vhodně pojmenovaných souborů v adresáři specifikovaným parametrem -o, každá zpráva v samostatném souboru. Příklad obsahu souboru je:
+
+Date: Wed, 14 Sep 2016 03:54:39 -0700 
+From: Sender <sender@example.com> 
+To: receiver@example.com
+Subject: Message
+Message-ID: <20160914035439.03264562@mininet-vm> 
+Header-N: The value of this header
+
+Toto je tělo e-mailu. Před tělem e-mailu jsou hlavičky a prázdný řádek. 
+Příklad spuštění programu
+
+
+$ popcl example.com -o maildir -a cred
+Staženo 15 zpráv.
+
+$ popcl 10.10.10.1 -p 1234 -T -n -o maildir -a cred
+Staženy 2 nové zprávy.
+
+$ popcl eva.fit.vutbr.cz -o maildir -a /dev/null
+Není možné se přihlásit na server eva.fit.vutbr.cz.
+
+$ popcl eva.fit.vutbr.cz -o maildir -a cred -T -c /dev/null -C /dev/null
+Není možné ověřit identitu serveru eva.fit.vutbr.cz.
+
+Referenční prostředí pro překlad
+
+Referenční překlad projektů proběhne na stroji merlin.fit.vutbr.cz. Vlastní testování může probíhat na jiném počítači s nainstalovaným OS GNU/Linux.
+
+Doporučená literatura
+Registr portů transportních protokolů
+RFC 1939: Post Office Protocol - Version 3
+RFC 2595: Using TLS with IMAP, POP3 and ACAP
+RFC5322: Internet Message Format
+Základy použití knihovny OpenSSL
+Manuálové stránky nástroje openssl (pro řešení projektu jsou užitečné zejména příkazy s_client a s_server)

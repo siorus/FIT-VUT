@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project outputprefix="LIGHTSOUT_xkorce01">
+
+	<!--  Project description -->
+	<name>LIGHTSOUT_xkorce01</name>
+	<author>Juraj Korcek</author>
+	<authoremail>xkorce01@stud.fit.vutbr.cz</authoremail>
+	<revision>1</revision>
+	<description>Popis projektu</description>
+
+	<!--  MCU part -->
+	<mcu>
+	    <file>main.c</file>
+	</mcu>
+
+	<!-- FPGA part -->
+	<fpga architecture="pc" dcmfrequency="25MHz">
+        <include>fpga/ctrls/vga/package.xml</include>
+	  <include>fpga/ctrls/keyboard/package.xml</include>
+		<file>vga.vhd</file>
+		<file>bcd.vhd</file>
+		<file>cell.vhd</file>
+		<file>math_pack2.vhd</file>
+
+	</fpga>
+
+</project>

@@ -1,0 +1,31 @@
+.\" Process this file with
+.\" groff -man -Tascii foo.1
+.\"
+.TH TRACE 1 "APRIL 2017" Linux "TRACE FOR LINUX"
+.SH NAME
+trace \- print the route packets trace to network host
+.br
+
+.SH SYNOPSIS
+.B "trace [-f first_ttl] [-m max_ttl] <ip-address>"
+.br
+
+.SH DESCRIPTION
+
+Trace tracks packets from network, where is located to the given
+destination host, displaying all nodes on the route. Program supports both IPv4 and IPv6 addresses. It uses UDP sockets and TTL or HOP LIMIT field for IPv6. Each time 
+TIME_EXCEEDED message is received in ICMP, it increments TTL/HOPLIMIT to pass and examine
+all nodes on the way. Program uses ports from range 33434 to 33534 and increments them on every node pass. Program also supports recursive domain name lookup.
+
+.SH OPTIONS
+.TP
+.BR \-f\ \fIfirst_ttl\fR
+Specifies TTL/HOPLIMIT value, from which node on the route should program start to trace the path. Default value is 1.
+.TP
+.BR \-m\ \fImax_ttl\fR
+Maximum TTL/HOPLIMIT value after which program quits. It is suggested to use this value to prevent timeout or long waiting for the end. Default value is 30.
+.SH BUGS
+No bugs have been discovered yet.
+.SH AUTHOR
+Written by Juraj Korcek <xkorce01@stud.fit.vutbr.cz>
+
